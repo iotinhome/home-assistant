@@ -1,0 +1,72 @@
+'1572702214229':
+  alias: S_BedPlug_On
+  sequence:
+  - condition: state
+    entity_id: switch.bedroom_plug
+    state: 'on'
+'1586418619222':
+  alias: DiningRoom50percent
+  sequence:
+  - data:
+      brightness_pct: 50
+      entity_id: light.jasco_products_45606_2_way_dimmer_switch_level
+      transition: 2
+    entity_id: light.jasco_products_45606_2_way_dimmer_switch_level
+    service: light.turn_on
+  mode: single
+'1588267882784':
+  alias: Update check
+  sequence:
+  - data:
+      entity_id: binary_sensor.updater
+    service: homeassistant.update_entity
+'1589861639856':
+  alias: Movie Mode
+  sequence:
+  - data: {}
+    entity_id: light.lounge_led
+    service: light.turn_on
+  - delay: 00:00:02
+  - data: {}
+    entity_id: light.living_room_light
+    service: light.turn_off
+  - delay: 00:00:02
+  - data: {}
+    entity_id: light.jasco_products_45606_2_way_dimmer_switch_level
+    service: light.turn_off
+  - delay: 00:00:02
+  - data: {}
+    entity_id: switch.tv
+    service: switch.turn_on
+  mode: single
+'1590547383652':
+  alias: OhmPowerDown
+  sequence:
+  - data:
+      entity_id: media_player.dining_room_speaker
+      message: Ohm power down starts now
+    service: tts.google_translate_say
+  - timeout: '60'
+    wait_template: 00:01:00
+  - data: {}
+    entity_id: switch.bedroom_plug
+    service: switch.turn_off
+  - data: {}
+    entity_id: switch.dining_room_plug
+    service: switch.turn_off
+  - data: {}
+    entity_id: media_player.samsung_qn55q6fam
+    service: media_player.turn_off
+  - data: {}
+    entity_id: switch.plug2
+    service: switch.turn_off
+  - data: {}
+    entity_id: light.living_room_light
+    service: light.turn_off
+  - data: {}
+    entity_id: switch.smart_energy_switch_switch
+    service: switch.turn_off
+  - data: {}
+    entity_id: switch.office
+    service: switch.turn_off
+  mode: single

@@ -1,0 +1,51 @@
+  #db_url: 'sqlite:///:memory:'
+  purge_keep_days: 7
+  exclude:
+    domains:
+      - weblink
+      - updater
+      - camera
+      - media_player
+#      - automation
+    entities:
+      - automation.guest_away
+      - automation.guest_back
+      - automation.lamp_light_motion
+      - automation.light_off_10min
+      - automation.restart_ha
+      - persistent_notification.http_login
+      - sensor.amcrest_camera_ptz_preset
+      - sensor.amcrest_camera_sd_used
+      - sensor.cpu_temp
+      - sensor.glances_cpu_temp
+      - sensor.gocontrolscene_165
+      - sensor.ha_installed_version
+      - sensor.ha_update_version
+      - sensor.ha_uptime
+      - sensor.hacs
+      - sensor.hassio_version
+      - sensor.installed_version
+      - sensor.uptime_os
+      - sensor.count_sensors
+      - sun.sun
+      - weather.home
+      - sensor.total_automations
+      - sensor.total_binary_sensors
+      - sensor.total_cameras
+      - sensor.total_devicetrackers
+      - sensor.total_entities
+      - sensor.total_lights
+      - sensor.total_media_players
+      - sensor.total_persons
+      - sensor.total_scenes
+      - sensor.total_scripts
+      - sensor.total_sensors
+      - sensor.total_switches
+      - sensor.ups_time_remaing
+
+
+
+
+
+#  purge_interval: 1
+#  purge_keep_days: 5

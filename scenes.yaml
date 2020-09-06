@@ -1,0 +1,64 @@
+- id: '1594888155285'
+  name: test
+  entities:
+    light.dinningroom:
+      brightness: 116
+      friendly_name: Dining Room Light
+      node_id: 8
+      state: 'on'
+      supported_features: 1
+      value_id: '72057594176962561'
+      value_index: 0
+      value_instance: 1
+- id: '1594888258566'
+  name: test
+  entities:
+    light.dinningroom:
+      brightness: 116
+      friendly_name: Dining Room Light
+      node_id: 8
+      state: 'on'
+      supported_features: 1
+      value_id: '72057594176962561'
+      value_index: 0
+      value_instance: 1
+- id: '1596440204960'
+  name: New Scene
+  entities:
+    switch.bedroom_plug:
+      friendly_name: Bedroom Plug
+      node_id: 10
+      state: 'on'
+      value_id: '72057594210500608'
+      value_index: 0
+      value_instance: 1
+- id: '1596440297963'
+  name: BedRoom
+  entities:
+    switch.bedroom_plug:
+      friendly_name: Bedroom Plug
+      node_id: 10
+      state: 'on'
+      value_id: '72057594210500608'
+      value_index: 0
+      value_instance: 1
+- id: '1596440294853'
+  name: BedRoom
+  entities:
+    switch.bedroom_plug:
+      friendly_name: Bedroom Plug
+      node_id: 10
+      state: 'on'
+      value_id: '72057594210500608'
+      value_index: 0
+      value_instance: 1
+- id: '1596440303253'
+  name: BedRoom
+  entities:
+    switch.bedroom_plug:
+      friendly_name: Bedroom Plug
+      node_id: 10
+      state: 'on'
+      value_id: '72057594210500608'
+      value_index: 0
+      value_instance: 1
