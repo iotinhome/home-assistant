@@ -1,0 +1,16 @@
+  - name: SMTP
+    platform: smtp
+    server: smtp.gmail.com
+    port: 587
+    timeout: 15
+    sender: myspam@gmail.com
+    encryption: starttls
+    username: myuser@gmail.com
+    password: !secret email
+    recipient:
+      - user@gmail.com
+    sender_name: MySmartHome
+
+  - name: twilio
+    platform: twilio_sms
+    from_number: +XXXXXXXXXXX

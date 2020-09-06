@@ -1,0 +1,22 @@
+# Mostly on default, unless I need to debug something
+
+  default: warning
+
+#logger:
+#  default: info
+#  logs:
+#    custom_components.wyzesense: debug
+#    wyzesense.gateway: debug
+#    custom_components.wyzeapi: debug
+#    custom_components.xfinity: debug
+
+#logger:
+#  default: warning
+#  logs:
+#    homeassistant.components.mqtt: warn
+#    homeassistant.components.websocket_api: warn
+#    homeassistant.components.deluge_client: warn
+#    homeassistant.components.zwave: warn
+#    homeassistant.components.http.view: warn
+#    zwave: warn
+#    homeassistant.components.camera: debug
