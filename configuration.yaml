@@ -1,0 +1,458 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+homeassistant:
+  customize: !include customize.yaml
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+speedtestdotnet:
+  scan_interval: '12:00:00'
+
+wyzeapi:
+  username: !secret wyze_email
+  password: !secret wyze_password
+ 
+logger: !include logger.yaml
+
+stream:
+# Text to speech
+tts:
+  - platform: google_translate
+
+zwave:
+  usb_path: /dev/ttyACM0
+  network_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  device_config: !include zwave_device_config.yaml
+
+# these devices are on a separate VLAN, as they are untrusted
+tplink:
+  discovery: false
+  switch:
+    - host: 192.168.7.130
+    - host: 192.168.7.131
+    - host: 192.168.7.132
+    - host: 192.168.7.133
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+recorder: !include recorder.yaml
+
+# Bluetooth
+device_tracker:
+  - platform: bluetooth_tracker
+    interval_seconds: 15
+    consider_home: 150
+    track_new_devices: true
+# PING
+  - platform: ping
+    hosts:
+      hostpixel: 192.168.1.112
+# NMAP device tracker    
+#  - platform: nmap_tracker
+#    home_interval: 60
+#    hosts :
+#    - 192.168.1.112
+#    - 192.168.1.114
+#    - 192.168.1.119
+#    exclude:
+#      - 192.168.1.100
+# DDWRT
+#  - platform: ddwrt
+#    host: 192.168.1.1
+#    username: admin
+#    password: XXXXXXXXXX
+
+panel_iframe:
+  router:
+    title: Router-SDCard
+    url: http://192.168.1.1
+    icon: mdi:router-wireless
+panel_custom:
+  - name: floorplan
+    sidebar_title: Floorplan
+    sidebar_icon: mdi:floor-plan
+    url_path: floorplan
+    config: !include floorplan.yaml
+
+  - name: zwavegraph2
+    sidebar_title: ZWave Graph
+    sidebar_icon: mdi:access-point-network
+    url_path: zwave
+
+  #Graphana:
+#    title: Graphana
+#    url: http://192.168.1.100:3000
+#    icon: mdi:chart-timeline
+#  influxdb:
+#    title: InfluxDB
+#    url: http://192.168.1.100:8888
+#    icon: mdi:chart-areaspline
+#  otherapp:
+#    title: 'Other App'
+#    url: '/otherapp'
+
+
+#vera:
+#  vera_controller_url: http://192.168.1.102:3480
+#  exclude: [ 62, 87, 95, 98, 129, 138 ]
+#  lights: [ 9, 11]
+
+
+
+
+binary_sensor:
+#  - platform: wyzesense
+#    device: auto
+#    device: "/dev/hidraw0"
+  - platform: bayesian
+    prior: 0.5
+    name: 'Joes Presence'
+    probability_threshold: 0.9
+    observations:
+#      - entity_id: 'device_tracker.pixel_3_xl' # BT
+      - entity_id: 'device_tracker.hostpixel' #ping
+        prob_given_true: 0.9
+        prob_given_false: 0.1
+        platform: 'state'
+        to_state: 'home'
+        # BT
+#      - entity_id: 'device_tracker.pixel_5g'
+#        prob_given_true: 0.9
+#        prob_given_false: 0.3
+#        platform: 'state'
+#        to_state: 'home'    
+  - platform: bayesian
+    prior: 0.5
+    name: 'Guest Presence'
+    probability_threshold: 0.8
+    observations:
+      - entity_id: 'device_tracker.guestiphone'
+        prob_given_true: 0.9
+        prob_given_false: 0.1
+        platform: 'state'
+        to_state: 'home'        
+
+
+# Influx DB  
+influxdb:
+  host: hassio
+  port: 8086
+  database: hassdb
+  username: hassdb
+  password: !secret influx
+  max_retries: 3
+  default_measurement: state
+
+# Example configuration.yaml entry
+#glances:
+#  - host: 127.0.0.1
+    
+sensor:
+#  - platform: glances
+#    host: 127.0.0.1
+#    port: 61209
+#    version: 3
+#    resources:
+#      - 'processor_load'
+#      - 'memory_use_percent'
+#      - 'disk_use_percent'
+
+#  -  platform: command_line
+#     name: CPU Temp
+#     command: "cat /sys/class/thermal/thermal_zone0/temp"
+#     unit_of_measurement: "°C"
+#     value_template: '{{ "%.2f"|format(value|multiply(0.001)) }}' 
+
+
+  - platform: template
+    sensors:
+      template_front_door_status:
+          value_template: >-
+            {%- if is_state("sensor.front_yale_alarm_type", "19") -%}
+              {%- if is_state("sensor.front_yale_alarm_level", "0") -%}
+                Unlocked by Master Code
+              {%- elif is_state("sensor.front_yale_alarm_level", "1") -%}
+                Unlocked by User One
+              {%- elif is_state("sensor.front_yale_alarm_level", "2") -%}
+                Unlocked by User Two
+              {%- else -%}
+                Unlocked by User {{ sensor.front_yale_alarm_level }}
+              {%- endif %}
+            {%- elif is_state("sensor.front_yale_alarm_type", "27") %}
+              Auto-Relocked
+            {%- elif is_state("sensor.front_yale_alarm_type", "21") %}
+              Manually Locked
+            {%- elif is_state("sensor.front_yale_alarm_type", "22") %}
+              Manually Unlocked
+            {%- elif is_state("sensor.front_yale_alarm_type", "161") %}
+              Tampered!
+            {%- else -%}
+              Unknown Level {{ states.sensor.front_yale_alarm_level.state }} Type {{ states.sensor.front_yale_alarm_type.state }}
+            {%- endif %}
+          icon_template: >-
+            {%- if is_state("sensor.front_yale_alarm_type", "19") -%}
+              mdi:lock-open-outline
+            {%- elif is_state("sensor.front_yale_alarm_type", "27") %}
+              mdi:lock-outline
+            {%- elif is_state("sensor.front_yale_alarm_type", "21") %}
+              mdi:lock-outline
+            {%- elif is_state("sensor.front_yale_alarm_type", "22") %}
+              mdi:lock-open-outline
+            {%- elif is_state("sensor.front_yale_alarm_type", "161") %}
+              mdi:alert
+            {%- else -%}
+              mdi:lock-open
+            {%- endif %}
+          friendly_name: 'Front Door Status'
+
+      ups_time_remaing:
+        friendly_name: 'UPS Battery Time Remaining'
+        value_template: >
+          {%- set time = states('sensor.ups_battery_runtime') | int %}
+          {%- set minutes = ((time % 3600) // 60) %}
+          {%- set minutes = '{}min'.format(minutes) if minutes > 0 else '' %}
+          {%- set hours = ((time % 86400) // 3600) %}
+          {%- set hours = '{}hr '.format(hours) if hours > 0 else '' %}
+          {%- set days = (time // 86400) %}
+          {%- set days = '{}d '.format(days) if days > 0 else '' %}
+          {{ 'Less than 1 min' if time < 60 else days + hours + minutes }}
+
+  - platform: ohmconnect
+    id: !secret ohm
+
+#  - platform: xfinity
+#    username: !secret xfinity_email
+#    password: !secret xfinity_password
+
+  - platform: command_line
+    name: Uptime OS
+    command: uptime | sed 's/.*up \([^,]*\), .*/\1/'
+    
+### HA Uptime #########################################################
+  - platform: command_line
+    name: "HA Uptime"
+    command: echo "$(($(date +%s) - $(date -d "$(head -n1 /config/home-assistant.log | cut -d' ' -f-2)" +%s)))"
+    scan_interval: 60
+    value_template: >-
+      {% set uptime = value | int %}
+      {% set seconds = uptime % 60 %}
+      {% set minutes = ((uptime % 3600) / 60) | int %}
+      {% set hours = ((uptime % 86400) / 3600) | int %}
+      {% set days = (uptime / 86400) | int %}
+      {%- if days > 0 -%}
+        {%- if days == 1 -%}
+          1 day
+        {%- else -%}
+          {{ days }} days
+        {%- endif -%}
+        {{ ', ' }}
+      {%- endif -%}
+      {{ '%02d' % hours }}:{{ '%02d' % minutes }}    
+  
+  - platform: rest
+    resource: https://s3.amazonaws.com/hassio-version/stable.json
+    name: HA Update Version
+    value_template: "{{ value_json.homeassistant.default }}"
+    scan_interval: 3600
+    
+#https://home-assistant.io/components/sensor.command_line/
+  -  platform: command_line
+     name: HA Installed version
+     command: "head -5 /config/.HA_VERSION"
+  - platform: template
+    sensors:
+      thermostat_temperature:
+        friendly_name: "thermostat_temperature"
+        entity_id: climate.thermostat_12
+        unit_of_measurement: "°F"
+        value_template: "{{ state_attr('climate.thermostat_12', 'current_temperature') }}"    
+      outside_temperature:
+        friendly_name: "outside_temperature"
+        entity_id: weather.home
+        unit_of_measurement: "°F"
+        value_template: "{{ state_attr('weather.home', 'temperature') }}"    
+  #----- Count Sensors
+      count_sensors:
+        entity_id: sensor.date
+        value_template: >
+          {%- set domains = ['sensor'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
+      #----- Count All Entities
+      total_entities:
+        entity_id: []
+        friendly_name: 'Entities'
+        icon_template: mdi:code-tags
+        value_template: "{{ states | count }}"
+
+      #----- Count Automations
+      total_automations:
+        entity_id: []
+        friendly_name: 'Automations'
+        icon_template: mdi:robot
+        value_template: "{{ states.automation | list | length }}"
+
+      #----- Count Binary Sensors
+      total_binary_sensors:
+        entity_id: []
+        friendly_name: 'Binary Sensors'
+        icon_template: mdi:checkbox-multiple-marked-circle
+        value_template: "{{ states.binary_sensor | list | length }}"
+
+      #----- Count Cameras
+      total_cameras:
+        entity_id: []
+        friendly_name: 'Cameras'
+        icon_template: mdi:cctv
+        value_template: "{{ states.camera | list | length }}"
+
+
+      #----- Count Device Trackers
+      total_devicetrackers:
+        entity_id: []
+        friendly_name: 'Devices'
+        icon_template: mdi:cellphone-link
+        value_template: "{{ states.device_tracker | list | length }}"
+
+      #----- Count Lights
+      total_lights:
+        entity_id: sensor.date
+        friendly_name: 'Lights'
+        icon_template: mdi:lightbulb-on
+        value_template: "{{ states.light | list | length }}"
+
+      #----- Count Media Players
+      total_media_players:
+        entity_id: []
+        friendly_name: 'Media Players'
+        icon_template: mdi:cast-connected
+        value_template: "{{ states.media_player | list | length }}"
+
+      #----- Count Persons
+      total_persons:
+        entity_id: []
+        friendly_name: 'Persons'
+        icon_template: mdi:account-multiple
+        value_template: "{{ states.person | list | length }}"
+
+      #----- Count Scenes
+      total_scenes:
+        entity_id: []
+        friendly_name: 'Scenes'
+        icon_template: mdi:palette
+        value_template: "{{ states.scene | list | length }}"
+
+      #----- Count Scripts
+      total_scripts:
+        entity_id: []
+        friendly_name: 'Scripts'
+        icon_template: mdi:script-text-outline
+        value_template: "{{ states.script | list | length }}"
+
+      #----- Count Sensors
+      total_sensors:
+        entity_id: []
+        friendly_name: 'Sensors'
+        icon_template: mdi:pulse
+        value_template: "{{ states.sensor | list | length }}"
+
+      #----- Count Switches
+      total_switches:
+        entity_id: []
+        friendly_name: 'Switches'
+        icon_template: mdi:power-socket-us
+        value_template: "{{ states.switch | list | length }}"
+
+      power_w:
+        value_template: "{{ state_attr('switch.smartswitchenergymtr_6','current_power_w') }}"
+        unit_of_measurement: W
+        device_class: power
+
+      
+# Example configuration.yaml entry
+#hangouts:
+#  intents:
+#    HangoutsHelp:
+#      sentences:
+#        - Help
+#    LivingRoomTemperature:
+#      sentences:
+#        - What is the temperature in the living room
+#      conversations:
+#        - id: CONVERSATION_ID1
+#        - id: CONVERSATION_ID2
+#  default_conversations:
+#    - id: CONVERSATION_ID1
+#  error_suppressed_conversations:
+#    - id: CONVERSATION_ID2
+
+# Example configuration.yaml entry
+notify: !include notify.yaml
+
+# Cameras
+amcrest: !include amcrest.yaml
+camera: !include cameras.yaml
+
+
+switch:
+  - platform: wake_on_lan
+    name: TV
+    mac: "XXXXXXXXXX"
+
+
+wake_on_lan:
+
+
+  - platform: samsungtv
+    host: 192.168.1.124
+    turn_on_action:
+      - service: wake_on_lan.send_magic_packet
+        data:
+          mac: "XXXXXXXX"
+
+image_processing:
+  - platform: deepstack_object
+    ip_address: 192.168.1.101
+    port: 5000
+    api_key: mysecretkey
+    save_file_folder: /config/www/deepstack
+    targets:
+      - person
+      - car
+    source:
+      - entity_id: camera.foscam_garage
+        name: cam1
+      - entity_id: camera.kitchen
+        name: cam2
+      - entity_id: camera.wyzecampan
+        name: cam3
+      - entity_id: camera.wyzecampan1
+        name: cam4
+      - entity_id: camera.wyzecamgarage
+        name: cam5
+#      - entity_id: camera.amcrest_camera
+#        name: cam6
+      - entity_id: camera.wyzewindow
+        name: cam7
+        
+# Example configuration.yaml entry
+#image_processing:
+#  - platform: tensorflow
+#    source:
+#      - entity_id: camera.foscam
+#    model:
+#      graph: /home/homeassistant/.homeassistant/tensorflow/frozen_inference_graph.pb
+
+
+#twilio: !include notify.yaml
+
+twilio:
+  account_sid: !secret twilioaccount
+  auth_token: !secret twiliotoken

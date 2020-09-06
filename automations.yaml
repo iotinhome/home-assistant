@@ -1,0 +1,343 @@
+- id: '1569710076577'
+  alias: 1.1 Me Away
+  description: I'm away
+  trigger:
+  - entity_id: binary_sensor.joes_presence
+    for: 00:05:00
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data:
+      entity_id: climate.thermostat
+      temperature: 59
+    entity_id: climate.thermostat
+    service: climate.set_temperature
+  mode: single
+- id: '1569710121286'
+  alias: 1.2 Me Back - bypass sensors -5am-10pm
+  trigger:
+  - entity_id: binary_sensor.joes_presence
+    for: 00:10:00
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - after: 00:05:00
+    before: 00:22:00
+    condition: time
+  action:
+  - data:
+      message: Joe is back home - sensors disarmed
+      title: Joe is back home - sensors disarmed
+    service: notify.smtp
+  mode: single
+- id: '1569710186899'
+  alias: Guest Away
+  trigger:
+  - entity_id: binary_sensor.guest_presence
+    for: 00:10:00
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data:
+      message: Guest away
+      title: Guest away
+    service: notify.smtp
+- id: '1569710239481'
+  alias: Guest back
+  trigger:
+  - entity_id: binary_sensor.guest_presence
+    for: 00:10:00
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      message: Guest back
+      title: Guest back
+    service: notify.smtp
+- id: '1573805851266'
+  alias: 10.1 Kitchen Cabinet LED motion
+  description: Kitchen movement
+  trigger:
+  - entity_id: binary_sensor.kitchen_motion
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - after: '20:00:00'
+    before: 07:00:00
+    condition: time
+  action:
+  - data: {}
+    entity_id: switch.plug2
+    service: switch.turn_on
+  - delay: 00:05:00
+  - data: {}
+    entity_id: switch.plug2
+    service: switch.turn_off
+  mode: single
+- id: '1575257560876'
+  alias: Close Front Door
+  description: Lock door If open for 2 min
+  trigger:
+  - entity_id: lock.front_yale_locked
+    for: 00:02:00
+    from: locked
+    platform: state
+    to: unlocked
+  condition: []
+  action:
+  - scene: scene.zfrontdoorlocked
+  - data:
+      message: Locked Front Door
+      title: Locked Front Door
+    service: notify.smtp
+  mode: single
+- alias: Restart HA
+  trigger:
+    platform: time
+    at: 05:00:00
+  condition:
+    condition: time
+    weekday:
+    - wed
+    - fri
+  action:
+  - service: homeassistant.restart
+  - data:
+      message: Hassio restart
+      title: Hassio restart
+    service: notify.smtp
+  id: 4d6ddaa22d0c44c5bc7e31c6b7a244de
+- id: '1588178352937'
+  alias: Update Available Notification
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.updater
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      message: Home Assistant {{ state_attr('binary_sensor.updater', 'newest_version')
+        }} is available.
+    service: persistent_notification.create
+- id: '1588902990561'
+  alias: GarageDoor1Open
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.garage_tilt_1_sensor
+    from: Closed
+    platform: state
+    to: Open
+  condition: []
+  action:
+  - data:
+      message: Garage Door 1 Opened
+      title: Garage Door 1 Opened
+    service: notify.notify
+  - data:
+      message: Garage Door 1 Opened
+    service: notify.smtp
+  mode: single
+- id: '1589602963519'
+  alias: At Sunset
+  description: ''
+  trigger:
+  - event: sunset
+    offset: 00:30:00
+    platform: sun
+  condition: []
+  action:
+  - data:
+      entity_id: scene.closeblinds
+    service: scene.turn_on
+- id: '1590371378212'
+  alias: The sun is about to set
+  description: ''
+  trigger:
+  - event: sunset
+    offset: -01:00:00
+    platform: sun
+  condition: []
+  action:
+  - data:
+      entity_id: media_player.dining_room_speaker
+      message: The sun will set in 1 hour
+    service: tts.google_translate_say
+- id: '1590555019025'
+  alias: '2.1 Ohm Active '
+  description: ''
+  trigger:
+  - entity_id: sensor.ohmconnect_status
+    from: Inactive
+    platform: state
+    to: Active
+  condition: []
+  action:
+  - data:
+      message: Powering down non essential devices
+      notification_id: 1234
+      title: Ohm shutdown starts now
+    service: persistent_notification.create
+  - data:
+      message: Ohm shutdown started
+    service: notify.notify
+  - data: {}
+    entity_id: script.1590547383652
+    service: script.turn_on
+- id: '1593148407027'
+  alias: Update sensors
+  description: ''
+  trigger:
+  - minutes: '1'
+    platform: time_pattern
+  condition: []
+  action:
+  - data: {}
+    entity_id: sensor.power_w
+    service: homeassistant.update_entity
+- id: '1596515806277'
+  alias: 0.1 Coffee machine on when I wake up
+  description: Bedroom plug off. Coffee on.
+  trigger:
+  - entity_id: binary_sensor.wakeup
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - after: 04:00:00
+    before: '11:00:00'
+    condition: time
+  action:
+  - data: {}
+    entity_id: switch.bedroom_plug
+    service: switch.turn_off
+  - data: {}
+    entity_id: switch.coffee_machine
+    service: switch.turn_on
+  - delay: 00:20:00
+  - data: {}
+    entity_id: switch.coffee_machine
+    service: switch.turn_off
+  mode: single
+- id: '1596826424261'
+  alias: Notify when UPS state changes
+  description: ''
+  trigger:
+  - entity_id: sensor.ups_status_data
+    platform: state
+  condition: []
+  action:
+  - data:
+      message: 'Home UPS: changed'
+      title: UPS Alert from HomeAssistant
+    service: notify.smtp
+  - data:
+      message: Home UPS changed
+    service: notify.notify
+  mode: single
+- id: '1596955740866'
+  alias: Bedroom plug
+  description: on 10pm - off 8am
+  trigger:
+  - at: '23:00:00'
+    platform: time
+  condition: []
+  action:
+  - data: {}
+    entity_id: switch.bedroom_plug
+    service: switch.turn_on
+  - delay: 08:00:00
+  - data: {}
+    entity_id: switch.bedroom_plug
+    service: switch.turn_off
+  mode: single
+- id: '1597025818169'
+  alias: 2.2 Ohm Complete
+  description: Ohm Complete1
+  trigger:
+  - entity_id: sensor.ohmconnect_status
+    from: Active
+    platform: state
+    to: Inactive
+  condition: []
+  action:
+  - data:
+      message: OhmPowerdown Complete - devices restarting in 5 minutes
+    service: notify.notify
+  - delay: 00:05:00
+  - data: {}
+    entity_id: switch.office
+    service: switch.turn_on
+  mode: single
+- id: '1597112931912'
+  alias: Ups battery less than 15%
+  description: ''
+  trigger:
+  - entity_id: sensor.ups_battery_charge
+    platform: state
+    to: <=15
+  condition: []
+  action:
+  - data:
+      message: URGENT:Battery dropped to less than 15%
+    service: notify.smtp
+  - data:
+      message: URGENT:Battery dropped to less than 15%
+    service: persistent_notification.create
+  mode: single
+- id: '1597553523200'
+  alias: 9.1 Bed time
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.wakeup
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition:
+  - after: '23:00:00'
+    before: 06:00:00
+    condition: time
+  action:
+  - data: {}
+    entity_id: switch.bedroom_plug
+    service: switch.turn_on
+  - data: {}
+    entity_id: light.jasco_products_45606_2_way_dimmer_switch_level
+    service: light.turn_off
+  - data: {}
+    entity_id: light.lounge_led
+    service: light.turn_off
+  mode: single
+- id: '1598681075383'
+  alias: Pixel morning unplugged
+  description: ''
+  trigger:
+  - entity_id: sensor.pixel_3_xl_battery_state
+    from: full
+    platform: state
+    to: discharging
+  condition:
+  - after: 04:00:00
+    before: '11:00:00'
+    condition: time
+  action:
+  - data: {}
+    entity_id: switch.bedroom_plug
+    service: switch.turn_off
+  - data: {}
+    entity_id: switch.coffee_machine
+    service: switch.turn_on
+  - delay: 00:20:00
+  - data: {}
+    entity_id: switch.coffee_machine
+    service: switch.turn_off
+  mode: single    

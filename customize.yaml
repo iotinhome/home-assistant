@@ -1,0 +1,38 @@
+binary_sensor.flood_sensor_general:
+  device_class: moisture
+binary_sensor.flood_sensor_sensor:
+  device_class: moisture
+binary_sensor.fibaro_downstairs_motion:
+  device_class: motion
+binary_sensor.ecolink_door_window_sensor_sensor:
+  device_class: door
+binary_sensor.lounge_motion_sensor:
+  device_class: motion
+binary_sensor.bedroom_sensor:
+  device_class: motion
+binary_sensor.flood_sensor_flood:
+  device_class: moisture
+binary_sensor.joes_presence:
+  device_class: presence
+binary_sensor.wyzesense_XXXXXXXXXXX:
+  device_class: window
+binary_sensor.old_motion_sensor_sensor:
+  device_class: motion
+binary_sensor.lounge_motion:
+  device_class: motion
+binary_sensor.garage_tilt_1_sensor:
+  device_class: garage_door
+binary_sensor.garage_tilt_2_sensor:
+  device_class: garage_door
+binary_sensor.bmw:
+  device_class: garage_door
+binary_sensor.audi:
+  device_class: garage_door
+binary_sensor.wyzesense_XXXXXXX:
+  device_class: window
+light.blinds_all_19:
+  device_class: blind
+binary_sensor.wakeup:  
+  device_class: opening
+#device_tracker._galaxy_tab_s:
+#  icon: mdi:tablet-android
