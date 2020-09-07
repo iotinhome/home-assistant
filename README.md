@@ -49,9 +49,10 @@ Themes
 Articles
 --------
 -   [Companies and Products](https://www.iotinhome.com/article1)
--   [UPS Battery Backup](https://www.iotinhome.com/upsreview)
+-   [UPS Battery Backup](https://www.iotinhome.com/upsreview) - - Network UPS Tools Add-on
 -   [Do you still have a fax line ?](https://www.iotinhome.com/landline)
--   [My Smart home Setup](https://www.iotinhome.com/mysmarthome)
+-   [My Smart home Setup](https://www.iotinhome.com/mysmarthome) 
+
 
 Cameras
 -------
@@ -81,7 +82,9 @@ My Smart Home Devices
 |[![Raspberry PI kit](https://github.com/iotinhome/home-assistant/blob/master/www/pic-19-pi4.PNG)](https://amzn.to/3lL0qJT)|[![USB SATA connector](https://github.com/iotinhome/home-assistant/blob/master/www/pic-20-sata.PNG)](https://amzn.to/2QXg0DG)|[![SSD Drive](https://github.com/iotinhome/home-assistant/blob/master/www/pic-21-SSD.PNG)](https://amzn.to/2DynhXO)||
 
 
-
+System Stats
+-------------
+![Utilization](https://github.com/iotinhome/home-assistant/blob/master/www/sysinfo-1.PNG)
 
 Some of the links in this post are affiliate links. This means if you click on the link and purchase the item, I will receive an affiliate commission at no extra cost to you. All opinions remain my own.
 
