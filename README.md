@@ -1,13 +1,65 @@
 
--   [Gallery](https://www.iotinhome.com/gallery)
--   [Video](https://www.iotinhome.com/video)
--   [About](https://www.iotinhome.com/about)
--   [More Info](https://www.iotinhome.com/moreinfo)
--   [Blog](https://www.iotinhome.com/blog)
-    -   [Companies and Products](https://www.iotinhome.com/article1)
-    -   [UPS Battery Backup](https://www.iotinhome.com/upsreview)
-    -   [Do you still have a fax line ?](https://www.iotinhome.com/landline)
-    -   [My Smart home Setup](https://www.iotinhome.com/mysmarthome)
+[Gallery](https://www.iotinhome.com/gallery) | [Blog](https://www.iotinhome.com/blog) | [Facebook](https://www.facebook.com/IOTinHome-108633134217001) | [YouTube](https://www.youtube.com/channel/UCG5HGYPUQp9z4KuTIpBlC0A) | [Twitter](https://twitter.com/iotinhome1)
+
+
+FloorPlan
+---------
+
+![FloorPlan](https://github.com/iotinhome/home-assistant/blob/master/www/Floorplan.PNG)
+
+ZWAVE
+-----
+Recently migrated from Vera to a Zooz USB Stick on the PI4. The network is stable and reliable. OZW is still in beta and some that will be considered in future. 
+![ZWAVE Network Map](https://github.com/iotinhome/home-assistant/blob/master/www/zwave%20network3.PNG)
+
+Automation
+----------
+- [Movie time](https://youtu.be/6z-h19JVmxA) - Switch off multiple lights, switch on backlight LEDs and TV, using Zwave and wyze api calls and Wake on LAN for TV.
+- [Ohm Shutdown](https://youtu.be/sgi07IzKXCA) - Powers down multiple devices, based on a trigger from the service.
+- [Coffee Machine](https://twitter.com/iotinhome1/status/1300687736685420552) - Unplugging the smartphone in the morning triggers the automation.
+- [Lock Front Door](https://github.com/iotinhome/home-assistant/blob/master/automations.yaml) - Lock the front door after 2 minutes.
+- [Kitchen lights off](https://github.com/iotinhome/home-assistant/blob/master/automations.yaml) - Turn the lights off, if no motion detected after 5min. Wyze motion sensor and Wyze wifi plug.
+- [Sunset in 1 hour](https://github.com/iotinhome/home-assistant/blob/master/automations.yaml) - Google Mini voice notification
+- [Away - Thermostat](https://github.com/iotinhome/home-assistant/blob/master/automations.yaml) - Lower the thermostat, based on presence detection
+
+Automations have additional conditions for time of day. 
+
+Presence detection
+-------------
+Currently using ping sensor on the primary smartphone, with a static DHCP and this seems reliable.
+Config files have comments for the other options that have been attempted in the past. 
+
+LED light - budget solution
+----------
+Using a $13 (no smart LED might strip), which is plugged into a wyze wifi plug (~$10) that does the on/off automation, based on motion or other scripts. 
+
+Notifications
+------------
+- [Twilio](https://github.com/iotinhome/home-assistant/blob/master/notify.yaml)
+- [Email](https://github.com/iotinhome/home-assistant/blob/master/notify.yaml)
+
+HACS/Custom components
+----
+[Link](https://github.com/iotinhome/home-assistant/tree/master/custom_components)
+
+Themes
+----
+[Link](https://github.com/iotinhome/home-assistant/tree/master/themes)
+
+Articles
+--------
+-   [Companies and Products](https://www.iotinhome.com/article1)
+-   [UPS Battery Backup](https://www.iotinhome.com/upsreview)
+-   [Do you still have a fax line ?](https://www.iotinhome.com/landline)
+-   [My Smart home Setup](https://www.iotinhome.com/mysmarthome)
+
+Cameras
+-------
+Foscam, Amcrest, WyzeCam v2, Wyzecam Pan
+![Camera](https://github.com/iotinhome/home-assistant/blob/master/www/camera-night.PNG)
+
+
+
 
 My Smart Home Devices
 ---------------------
@@ -36,5 +88,3 @@ Some of the links in this post are affiliate links. This means if you click on t
 -   [Facebook](https://www.facebook.com/IOTinHome-108633134217001)
 -   [Youtube](https://www.youtube.com/channel/UCG5HGYPUQp9z4KuTIpBlC0A)
 -   [Twitter](https://twitter.com/iotinhome1)
-
-© Copyright 2020 - IOT in Home
