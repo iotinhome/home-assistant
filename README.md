@@ -48,7 +48,6 @@ Themes
 
 Articles
 --------
--   [Companies and Products](https://www.iotinhome.com/article1)
 -   [UPS Battery Backup](https://www.iotinhome.com/upsreview) - - Network UPS Tools Add-on
 -   [Do you still have a fax line ?](https://www.iotinhome.com/landline)
 -   [My Smart home Setup](https://www.iotinhome.com/mysmarthome) 
