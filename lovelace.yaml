@@ -1,0 +1,990 @@
+custom_header:
+  compact_mode: true
+title: Home
+views:
+  - badges:
+      - entity: binary_sensor.joes_presence
+      - entity: binary_sensor.guest_presence
+      - entity: script.1589861639856
+        tap_action:
+          action: call-service
+          service: script.turn_on
+          service_data:
+            entity_id: script.1589861639856
+      - entity: script.1590547383652
+    cards:
+      - show_empty: false
+        show_notification_title: true
+        style: |
+          ha-card {
+            border: solid 1px var(--primary-color);
+          }
+        title: Notifications
+        type: 'custom:home-feed-card'
+      - card:
+          id_filter: ^home_feed_.*
+          max_item_count: 10
+          scrollbars_enabled: false
+          show_empty: true
+          show_notification_title: true
+          style: |
+            ha-card {
+              border: solid 0px var(--primary-color);
+            }
+          title: Last Movement
+          type: 'custom:home-feed-card'
+        filter:
+          include:
+            - entity_id: binary_sensor*
+            - entity_id: sensor.template_front_door_status
+            - entity_id: sensor.ups_status_data
+            - entity_id: sensor*alarm*
+            - entity_id: switch*
+              options:
+                content_template: '{{display_name}} Movement {{state}}'
+                exclude_states:
+                  - 'off'
+                include_history: true
+                keep_latest: true
+                remove_repeats: true
+        type: 'custom:auto-entities'
+      - entities:
+          - entity: lock.front_yale_locked
+            secondary_info: last-changed
+          - entity: sensor.template_front_door_status
+          - entity: lock.yale_3_locked
+            secondary_info: last-changed
+          - entity: lock.yale_g1_locked
+            secondary_info: last-changed
+        show_header_toggle: false
+        title: Locks
+        type: entities
+      - entity: climate.thermostat
+        name: Thermostat
+        type: thermostat
+      - entities:
+          - entity: light.jasco_products_45606_2_way_dimmer_switch_level
+            secondary_info: last-changed
+            type: 'custom:slider-entity-row'
+          - entity: climate.thermostat
+            secondary_info: last-changed
+            type: 'custom:slider-entity-row'
+        show_header_toggle: false
+        type: entities
+      - entities:
+          - entity: light.living_room_light
+            name: Lounge Light
+          - entity: switch.plug2
+            name: Kitchen Cabinet LED
+          - entity: switch.tvplug
+            name: Lounge Plug Blinds
+          - entity: light.lounge_led
+            name: LED new
+          - entity: switch.dining_room_plug
+          - entity: switch.smart_energy_switch_switch
+          - entity: switch.bedroom_plug
+          - entity: switch.coffee_machine
+          - entity: switch.office
+        show_header_toggle: false
+        title: Bulb/Switches
+        type: entities
+      - entities:
+          - entity: sensor.uptime_os
+            icon: 'mdi:desktop-classic'
+            secondary_info: last-changed
+          - entity: sensor.ha_uptime
+            icon: 'mdi:home-assistant'
+            secondary_info: last-changed
+          - entity: sensor.hacs
+            name: Addons
+            secondary_info: last-changed
+          - type: divider
+          - entity: sensor.snapshot_backup
+            name: Backup Status
+            secondary_info: last-changed
+          - type: divider
+          - entities:
+              - entity: sensor.ha_update_version
+                name: Latest
+            entity: sensor.ha_installed_version
+            icon: 'mdi:home-assistant'
+            name: HA Installed Version
+            state_header: Current
+            type: 'custom:multiple-entity-row'
+          - type: divider
+          - columns: 2
+            entities:
+              - entity: sensor.glances_cpu_used
+                icon: 'mdi:chip'
+                name: CPU
+              - entity: sensor.glances_ram_used_percent
+                icon: 'mdi:memory'
+                name: RAM
+              - entity: sensor.glances_cpu_thermal_1_temp
+                icon: 'mdi:thermometer'
+                name: Temp
+              - entity: sensor.glances_data_used_percent
+                icon: 'mdi:harddisk'
+                name: Disk
+            positions:
+              indicator: 'off'
+              style: |-
+                bar-card-title {
+                  text-shadow: 1px 1px 5px black;
+                }
+                bar-card-value {
+                  text-shadow: 1px 1px 5px black;
+                }   
+            type: 'custom:bar-card'
+        type: entities
+      - entities:
+          - entity: binary_sensor.ecolink_door_window_sensor_sensor
+          - entity: binary_sensor.fibaro_downstairs_motion
+          - entity: binary_sensor.flood_sensor_flood
+          - entity: binary_sensor.flood_sensor_general
+          - entity: binary_sensor.flood_sensor_sensor
+          - entity: binary_sensor.garage_tilt_1_sensor
+          - entity: binary_sensor.garage_tilt_2_sensor
+          - entity: binary_sensor.lounge_motion_sensor
+          - entity: binary_sensor.old_motion_sensor_sensor
+          - entity: binary_sensor.front_door_sensor
+          - entity: binary_sensor.kitchen_motion
+        title: Sensors
+        type: entities
+    icon: 'mdi:home'
+    panel: false
+    path: default_view
+    title: Home
+  - badges:
+      - weather.home
+      - sun.sun
+    cards:
+      - entity: weather.home
+        type: weather-forecast
+      - columns: 2
+        entities:
+          - entity: sensor.outside_temperature
+            name: Outside
+          - entity: sensor.lounge_motion_temperature
+          - entity: sensor.fibaro_system_fgms001_zw5_motion_sensor_temperature
+          - entity: sensor.thermostatct30_temperature
+          - entity: sensor.flood_sensor_temperature
+        title: Temperature
+        type: glance
+      - entity: climate.thermostat
+        name: thermostat
+        type: thermostat
+      - entities:
+          - entity: sensor.outside_temperature
+            name: Outside
+          - entity: sensor.thermostat_temperature
+            name: Thermostat
+          - entity: sensor.2_169
+            name: Kitchen
+          - entity: sensor.fib1temp_80
+            name: Lounge
+          - color_thresholds:
+              - color: '#f39c12'
+                value: 50
+              - color: '#d35400'
+                value: 60
+              - color: '#c0392b'
+                value: 65
+            entity: sensor.3_in_1_sensor_temperature_140
+            name: Downstairs
+        hours_to_show: 48
+        labels: false
+        line_width: 2
+        points_per_hour: 0.25
+        refresh_interval: 0
+        type: 'custom:mini-graph-card'
+      - entities:
+          - entity: sensor.fibaro_system_fgms001_zw5_motion_sensor_luminance
+          - entity: sensor.lounge_motion_luminance
+          - entity: sensor.pixel_3_xl_light_sensor
+        title: Lux
+        type: entities
+      - aspect_ratio: '1'
+        type: iframe
+        url: >-
+          http://192.168.1.100:8123/api/hassio_ingress/ZLFqC0NGhdvszvWra7W1TXTZ/d/CnsQ94zgz/temperature-gauge?orgId=1&from=1593911407746&to=1593933007747
+    icon: 'mdi:weather-cloudy'
+    path: ''
+    title: Weather
+  - badges: []
+    cards:
+      - aspect_ratio: 0%
+        camera_image: camera.wyzekitchencorner
+        entities: []
+        type: picture-glance
+      - aspect_ratio: 0%
+        camera_image: camera.amcrest
+        entities: []
+        type: picture-glance
+      - aspect_ratio: 0%
+        camera_image: camera.foscam_garage
+        entities: []
+        type: picture-glance
+      - aspect_ratio: 56%
+        camera_image: camera.kitchen
+        entities: []
+        type: picture-glance
+      - aspect_ratio: 0%
+        camera_image: camera.wyzecampan
+        entities: []
+        hold_action:
+          action: more-info
+        type: picture-glance
+      - aspect_ratio: 0%
+        camera_image: camera.wyzecamgarage
+        entities: []
+        type: picture-glance
+    icon: 'mdi:camera'
+    path: camera
+    title: Camera
+  - badges: []
+    cards:
+      - entities:
+          - entity: device_tracker.joe_s_pixel_3_xl
+            name: Cell
+            secondary_info: last-changed
+          - entity: device_tracker.pixel_3_xl
+            name: Cell Bluetooth
+            secondary_info: last-changed
+          - entity: device_tracker.pixel_3_xl_2
+            secondary_info: last-changed
+          - entity: sensor.pixel_3_xl_bluetooth_connection
+            secondary_info: last-changed
+        type: entities
+      - entity: media_player.dining_room_speaker
+        type: media-control
+      - entity: media_player.tvroom_tv
+        type: media-control
+      - entity: switch.tv
+        type: entity
+      - entity: device_tracker.audi_uhv_9480
+        name: Audi Bluetooth
+        type: entity
+      - entities:
+          - entity: media_player.samsung_qn55q6fam
+          - entity: device_tracker.tv_samsung_tv
+        title: TV
+        type: entities
+      - entities:
+          - entity: media_player.dining_room_speaker
+          - entity: media_player.samsung_qn55q6fam
+          - entity: media_player.tvroom_tv
+        title: Media
+        type: entities
+      - card:
+          secondary_info: last-changed
+          show_header_toggle: false
+          title: Device Tracker
+          type: entities
+        filter:
+          include:
+            - entity_id: device_tracker.*
+        sort:
+          method: state
+        type: 'custom:auto-entities'
+      - entities:
+          - device_tracker.pixel_3_xl_2
+          - sensor.pixel_3_xl_audio_sensor
+          - sensor.pixel_3_xl_bluetooth_connection
+          - sensor.pixel_3_xl_do_not_disturb_sensor
+          - sensor.pixel_3_xl_geocoded_location
+          - sensor.pixel_3_xl_last_reboot
+          - sensor.pixel_3_xl_light_sensor
+          - sensor.pixel_3_xl_next_alarm
+          - sensor.pixel_3_xl_pressure_sensor
+          - sensor.pixel_3_xl_proximity_sensor
+          - sensor.pixel_3_xl_storage_sensor
+          - sensor.wifi_connection
+        type: entities
+    icon: 'mdi:devices'
+    path: device-tracker
+    title: Device Tracker
+  - badges: []
+    cards:
+      - entities:
+          - entity: sensor.glances_cpu_used
+            name: CPU
+          - entity: sensor.glances_ram_used_percent
+            name: Memory
+          - entity: sensor.glances_data_used_percent
+            name: Disk
+          - entity: sensor.glances_cpu_thermal_1_temp
+            name: Temperature
+        hours_to_show: 48
+        refresh_interval: 0
+        title: System Utilization
+        type: history-graph
+      - animate: true
+        entities:
+          - entity: sensor.glances_cpu_used
+            name: CPU
+          - entity: sensor.glances_ram_used_percent
+            name: Memory
+          - color_thresholds:
+              - color: '#f39c12'
+                value: 5
+              - color: '#d35400'
+                value: 15
+              - color: '#c0392b'
+                value: 21.5
+            entity: sensor.glances_data_used_percent
+            name: Disk
+            show:
+              labels: true
+        hours_to_show: 48
+        line_width: 2
+        refresh_interval: 0
+        show_state: false
+        smoothing: false
+        title: System Utilization
+        type: 'custom:mini-graph-card'
+      - card_height: 125
+        entity: sensor.glances_cpu_used
+        gauge:
+          borderInnerWidth: 0
+          borderMiddleWidth: 0
+          borderOuterWidth: 0
+          borderShadowWidth: 0
+          borders: true
+          height: 220
+          highlights:
+            - color: 'rgba(200, 50, 50, .75)'
+              from: 80
+              to: 100
+          majorTicks:
+            - '0'
+            - '10'
+            - '20'
+            - '30'
+            - '40'
+            - '50'
+            - '60'
+            - '70'
+            - '80'
+            - '90'
+            - '100'
+          maxValue: 100
+          minValue: 0
+          minorTicks: 2
+          startAngle: 90
+          strokeTicks: true
+          ticksAngle: 180
+          title: Processor (%)
+          type: radial-gauge
+          valueBox: false
+          width: 220
+        type: 'custom:canvas-gauge-card'
+      - card_height: 125
+        entity: sensor.glances_ram_used_percent
+        gauge:
+          borderInnerWidth: 0
+          borderMiddleWidth: 0
+          borderOuterWidth: 0
+          borderShadowWidth: 0
+          borders: false
+          height: 220
+          highlights:
+            - color: 'rgba(200, 50, 50, .75)'
+              from: 80
+              to: 100
+          majorTicks:
+            - '0'
+            - '10'
+            - '20'
+            - '30'
+            - '40'
+            - '50'
+            - '60'
+            - '70'
+            - '80'
+            - '90'
+            - '100'
+          maxValue: 100
+          minValue: 0
+          minorTicks: 2
+          startAngle: 90
+          strokeTicks: true
+          ticksAngle: 180
+          title: Memory (%)
+          type: radial-gauge
+          valueBox: false
+          width: 220
+        type: 'custom:canvas-gauge-card'
+      - card_height: 125
+        entity: sensor.glances_data_used_percent
+        gauge:
+          borderInnerWidth: 0
+          borderMiddleWidth: 0
+          borderOuterWidth: 0
+          borderShadowWidth: 0
+          borders: false
+          height: 220
+          highlights:
+            - color: 'rgba(200, 50, 50, .75)'
+              from: 80
+              to: 100
+          majorTicks:
+            - '0'
+            - '10'
+            - '20'
+            - '30'
+            - '40'
+            - '50'
+            - '60'
+            - '70'
+            - '80'
+            - '90'
+            - '100'
+          maxValue: 100
+          minValue: 0
+          minorTicks: 2
+          startAngle: 90
+          strokeTicks: true
+          ticksAngle: 180
+          title: Disk (%)
+          type: radial-gauge
+          valueBox: false
+          width: 220
+        type: 'custom:canvas-gauge-card'
+      - entities:
+          - entity: sensor.uptime_os
+            icon: 'mdi:desktop-classic'
+            secondary_info: last-changed
+          - entity: sensor.ha_uptime
+            icon: 'mdi:home-assistant'
+            secondary_info: last-changed
+          - entity: sensor.hacs
+            name: Addons
+            secondary_info: last-changed
+          - type: divider
+          - entity: binary_sensor.snapshots_stale
+            name: Backup Stale
+            secondary_info: last-changed
+          - entity: sensor.snapshot_backup
+            name: Backup Status
+            secondary_info: last-changed
+          - type: divider
+          - entities:
+              - entity: sensor.ha_update_version
+                name: Latest
+            entity: sensor.ha_installed_version
+            icon: 'mdi:home-assistant'
+            name: HA Installed Version
+            state_header: Current
+            type: 'custom:multiple-entity-row'
+          - type: divider
+          - columns: 2
+            entities:
+              - entity: sensor.glances_cpu_used
+                icon: 'mdi:chip'
+                name: CPU
+              - entity: sensor.glances_ram_used_percent
+                icon: 'mdi:memory'
+                name: RAM
+              - entity: sensor.glances_cpu_thermal_1_temp
+                icon: 'mdi:thermometer'
+                name: Temp
+              - entity: sensor.glances_data_used_percent
+                icon: 'mdi:harddisk'
+                name: Disk
+            positions:
+              indicator: 'off'
+              style: |-
+                bar-card-title {
+                  text-shadow: 1px 1px 5px black;
+                }
+                bar-card-value {
+                  text-shadow: 1px 1px 5px black;
+                }   
+            type: 'custom:bar-card'
+          - type: divider
+        type: entities
+      - cards:
+          - columns: 4
+            entities:
+              - entity: sensor.count_sensors
+                name: Sensors
+              - entity: sensor.total_automations
+                hold_action:
+                  action: call-service
+                  service: automation.reload
+                name: Auto
+                tap_action:
+                  action: navigate
+                  navigation_path: /config/automation
+              - entity: sensor.total_cameras
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/camera/
+              - entity: sensor.total_media_players
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/device-tracker
+              - entity: sensor.total_scenes
+                hold_action:
+                  action: call-service
+                  service: scene.reload
+                tap_action:
+                  action: navigate
+                  navigation_path: /config/scene/dashboard
+              - entity: sensor.total_scripts
+                hold_action:
+                  action: call-service
+                  service: script.reload
+                tap_action:
+                  action: navigate
+                  navigation_path: /config/script
+              - entity: sensor.total_lights
+              - entity: sensor.total_binary_sensors
+              - entity: sensor.total_switches
+              - entity: sensor.total_entities
+            title: Stats
+            type: glance
+        type: vertical-stack
+    icon: 'mdi:desktop-classic'
+    path: sysadmin
+    title: System Util
+  - badges: []
+    cards:
+      - card_height: 125
+        entity: sensor.speedtest_download
+        gauge:
+          borderInnerWidth: 0
+          borderMiddleWidth: 0
+          borderOuterWidth: 0
+          borderShadowWidth: 0
+          borders: true
+          height: 220
+          highlights:
+            - color: 'rgba(200, 50, 50, .75)'
+              from: 220
+              to: 250
+          majorTicks:
+            - '0'
+            - '50'
+            - '100'
+            - '150'
+            - '200'
+            - '250'
+          maxValue: 250
+          minValue: 0
+          minorTicks: 2
+          startAngle: 90
+          strokeTicks: true
+          ticksAngle: 180
+          title: Download Mbits/s
+          type: radial-gauge
+          valueBox: false
+          width: 220
+        type: 'custom:canvas-gauge-card'
+      - card_height: 125
+        entity: sensor.speedtest_upload
+        gauge:
+          borderInnerWidth: 0
+          borderMiddleWidth: 0
+          borderOuterWidth: 0
+          borderShadowWidth: 0
+          borders: true
+          height: 220
+          highlights:
+            - color: 'rgba(200, 50, 50, .75)'
+              from: 20
+              to: 25
+          majorTicks:
+            - '0'
+            - '5'
+            - '10'
+            - '15'
+            - '20'
+            - '25'
+          maxValue: 25
+          minValue: 0
+          minorTicks: 2
+          startAngle: 90
+          strokeTicks: true
+          ticksAngle: 180
+          title: Upload Mbits/s
+          type: radial-gauge
+          valueBox: false
+          width: 220
+        type: 'custom:canvas-gauge-card'
+      - entities:
+          - entity: sensor.xfinity_usage
+        hours_to_show: 24
+        refresh_interval: 3600
+        title: Internet
+        type: history-graph
+    icon: 'mdi:speedometer'
+    path: speedtest
+    title: SpeedTest
+  - badges: []
+    cards:
+      - entities:
+          - entity: scene.lightson
+            secondary_info: last-changed
+          - entity: scene.arm_sensors
+            secondary_info: last-changed
+          - entity: scene.temp70f
+            secondary_info: last-changed
+          - entity: scene.mornings
+            secondary_info: last-changed
+          - entity: scene.day
+            secondary_info: last-changed
+          - entity: scene.lightswhileaway
+            secondary_info: last-changed
+          - entity: scene.bypass_sensors
+            secondary_info: last-changed
+          - entity: scene.temp68
+            secondary_info: last-changed
+          - entity: scene.night
+            secondary_info: last-changed
+          - entity: scene.evening
+            secondary_info: last-changed
+          - entity: scene.low_power_temperature
+            secondary_info: last-changed
+          - entity: scene.closeblinds
+            secondary_info: last-changed
+          - entity: scene.openblinds
+            secondary_info: last-changed
+          - entity: scene.lightsoff
+            secondary_info: last-changed
+          - entity: scene.mondaymorning
+            secondary_info: last-changed
+          - entity: scene.closeblindsnew
+            secondary_info: last-changed
+          - entity: scene.unlock_yale
+            secondary_info: last-changed
+        show_header_toggle: false
+        title: Scene
+        type: entities
+    icon: 'mdi:google-photos'
+    path: scenes
+    title: Scenes
+  - badges:
+      - binary_sensor.gargetiltsensoraudi_73
+      - binary_sensor.gargetiltsensorbmw_72
+      - switch.garageecolinkdoor_89
+    cards:
+      - cards: null
+        elements:
+          - entity: sensor.fib1temp_80
+            style:
+              left: 72%
+              top: 44%
+            type: state-label
+        image: /local/custom_ui/floorplan/floorplan.svg
+        panel: true
+        type: picture-elements
+      - entities:
+          - entity: binary_sensor.gargetiltsensorbmw_72
+          - entity: binary_sensor.wyzesense_7785d09e
+          - entity: binary_sensor.gargetiltsensoraudi_73
+          - entity: binary_sensor.wyzesense_7785d08e
+        title: My Title
+        type: entities
+      - entities:
+          - entity: binary_sensor.garage_tilt_1_sensor
+            name: BMW1
+          - entity: binary_sensor.wyzesense_7785d09e
+            name: BMW2
+          - entity: binary_sensor.garage_tilt_2_sensor
+            name: Audi1
+          - entity: binary_sensor.wyzesense_7785d08e
+            height: 20px
+            name: Audi2
+            style: |-
+              bar-card-current, bar-card-backgroundbar {
+                border-radius: 20px;
+              }
+        hours_to_show: 24
+        refresh_interval: 0
+        title: Motion
+        type: history-graph
+    icon: 'mdi:garage'
+    path: garage
+    title: Garage
+  - badges: []
+    cards:
+      - entities:
+          - entity: binary_sensor.front_door_sensor
+            name: Front Door
+          - entity: binary_sensor.wyze_contact_sensor
+            name: Kitchen motion
+          - entity: binary_sensor.flood_sensor_sensor
+            name: Flood
+          - entity: binary_sensor.lounge_motion_sensor
+            name: Lounge
+          - entity: binary_sensor.fibaro_downstairs_motion
+          - entity: binary_sensor.ecolink_door_window_sensor_sensor
+            name: Garage
+          - entity: binary_sensor.old_motion_sensor_sensor
+          - entity: binary_sensor.garage_tilt_1_sensor
+            name: Garage1
+          - entity: binary_sensor.garage_tilt_2_sensor
+            name: Garage2
+          - entity: binary_sensor.audi
+          - entity: binary_sensor.bmw
+          - entity: binary_sensor.kitchen_motion
+          - entity: binary_sensor.wakeup
+            name: Awake
+          - entity: binary_sensor.office_window
+        title: New MotionSensors
+        type: glance
+      - card:
+          type: entities
+        filter:
+          include:
+            - entity_id: binary_sensor*
+        sort:
+          method: state
+        type: 'custom:auto-entities'
+    icon: 'mdi:smoke-detector'
+    panel: false
+    path: sensors
+    title: Sensors
+  - badges: []
+    cards:
+      - cards:
+          - card:
+              attribute: battery_level
+              sort_by_level: asc
+              title_position: left
+              type: 'custom:battery-state-card'
+            filter:
+              exclude:
+                - entity_id: switch.garageecolinkdoor_89
+              include:
+                - attributes:
+                    battery_level: <=100
+            type: 'custom:auto-entities'
+        title: Battery Status
+        type: vertical-stack
+      - card:
+          show_header_toggle: false
+          title: Battery Status
+          type: entities
+        filter:
+          include:
+            - entity_id: sensor.*battery*
+            - entity_id: zwave.*battery*
+            - attributes:
+                battery_level: <=100
+        sort:
+          method: state
+          numeric: true
+        type: 'custom:auto-entities'
+      - card:
+          sort_by_level: asc
+          type: 'custom:battery-state-card'
+        filter:
+          include:
+            - entity_id: sensor.*.battery_level*
+        type: 'custom:auto-entities'
+      - entities:
+          - entity: sensor.yale_g1_battery_level
+        hours_to_show: 124
+        refresh_interval: 0
+        type: history-graph
+    icon: 'mdi:battery'
+    path: battery
+    title: Battery
+  - badges: []
+    cards:
+      - aspect_ratio: 0%
+        camera_image: camera.wyzekitchencorner
+        entity: camera.foscam_garage
+        type: picture-entity
+    path: demo
+    title: Demo
+  - badges: []
+    cards:
+      - content: |-
+
+
+          {%- for domain in states | map(attribute='domain') | unique %}
+          {{ domain ~ 's : ' ~ states[domain] | count }}
+          {%- endfor %}
+
+          {{ '  Total: ' ~ states | count }}
+        title: Stats
+        type: markdown
+      - cards:
+          - card:
+              attribute: device_armed
+              columns: 1
+              height: 20px
+              style: |-
+                bar-card-current, bar-card-backgroundbar {
+                  border-radius: 20px;
+                }
+              title_position: left
+              type: 'custom:bar-card'
+              width: 102%
+            filter:
+              include:
+                - attributes:
+                    device_armed: '! null'
+              sort:
+                attribute: device_armed
+                method: attribute
+            type: 'custom:auto-entities'
+        title: Armed
+        type: vertical-stack
+    icon: 'mdi:walk'
+    path: staging
+    title: Staging
+  - badges:
+      - entity: script.1590547383652
+        name: Power Down
+        tap_action:
+          action: call-service
+          service: script.turn_on
+          service_data:
+            entity_id: script.1590547383652
+    cards:
+      - show_empty: false
+        show_notification_title: true
+        style: |
+          ha-card {
+            border: solid 1px var(--primary-color);
+          }
+        title: Notifications
+        type: 'custom:home-feed-card'
+      - entities:
+          - entity: switch.dining_room_plug
+          - entity: switch.bedroom_plug
+          - entity: switch.plug2
+            name: Kitchen Cabinet LED
+          - entity: light.living_room_light
+          - entity: light.lounge_led
+          - entity: media_player.samsung_qn55q6fam
+            name: Samsung TV
+          - entity: switch.smart_energy_switch_switch
+          - entity: switch.office
+          - entity: switch.coffee_machine
+          - entity: light.jasco_products_45606_2_way_dimmer_switch_level
+        show_header_toggle: true
+        title: Power Down
+        type: entities
+      - entities:
+          - entity: sensor.ohmconnect_status
+        hours_to_show: 24
+        refresh_interval: 0
+        type: history-graph
+      - entities:
+          - entity: sensor.smart_energy_switch_power
+        hours_to_show: 24
+        refresh_interval: 60
+        type: history-graph
+      - entities:
+          - entity: sensor.ohmconnect_status
+          - entity: sensor.ups_time_remaing
+          - entity: sensor.ups_battery_charge
+        type: entities
+      - entities:
+          - entity: sensor.smart_energy_switch_energy
+        hours_to_show: 24
+        refresh_interval: 0
+        type: history-graph
+    path: ohmdemo
+    title: Ohm Demo
+  - badges: []
+    cards:
+      - entities:
+          - zwave.garage_tilt_1
+          - sensor.garage_tilt_1_alarm_level
+          - sensor.garage_tilt_1_alarm_type
+          - sensor.garage_tilt_1_burglar
+          - binary_sensor.garage_tilt_1_sensor
+          - sensor.garage_tilt_1_sourcenodeid
+        type: entities
+      - entities:
+          - entity: device_tracker.kasaplug
+          - entity: switch.p1
+          - entity: switch.p2
+          - entity: switch.p3
+        title: My Title
+        type: entities
+      - entities:
+          - switch.p1
+        type: entities
+    path: zooz
+    title: zooz
+  - badges: []
+    cards:
+      - entities:
+          - entity: sensor.ups_time_remaing
+          - entity: sensor.ups_load
+          - entity: sensor.ups_battery_voltage
+          - entity: sensor.ups_low_battery_setpoint
+        title: UPS
+        type: entities
+      - entity: sensor.ups_battery_charge
+        max: 100
+        min: 0
+        type: gauge
+      - card_height: 125
+        entity: sensor.ups_battery_charge
+        gauge:
+          borderInnerWidth: 0
+          borderMiddleWidth: 0
+          borderOuterWidth: 0
+          borderShadowWidth: 0
+          borders: true
+          height: 220
+          highlights:
+            - color: 'rgba(200, 50, 50, .75)'
+              from: 99
+              to: 100
+          majorTicks:
+            - '0'
+            - '10'
+            - '20'
+            - '30'
+            - '40'
+            - '50'
+            - '60'
+            - '70'
+            - '80'
+            - '90'
+            - '100'
+          maxValue: 100
+          minValue: 0
+          minorTicks: 2
+          startAngle: 90
+          strokeTicks: true
+          ticksAngle: 180
+          title: UPS Battery (%)
+          type: radial-gauge
+          valueBox: false
+          width: 220
+        type: 'custom:canvas-gauge-card'
+      - entities:
+          - entity: switch.office
+        title: Office Power
+        type: entities
+      - entities:
+          - entity: sensor.ups_status_data
+        title: My Title
+        type: entities
+      - entities:
+          - entity: sensor.ups_battery_charge
+        hours_to_show: 32
+        refresh_interval: 0
+        type: history-graph
+      - entities:
+          - entity: sensor.ups_load
+        hours_to_show: 4
+        refresh_interval: 0
+        type: history-graph
+      - entities:
+          - entity: sensor.ups_battery_runtime
+          - entity: sensor.ups_time_remaing
+        type: entities
+    path: ups
+    title: UPS
