@@ -82,6 +82,7 @@ My Smart Home Devices
 |[![USB Hub](https://github.com/iotinhome/home-assistant/blob/master/www/pic-16-hub-usb.PNG)](https://amzn.to/3gVvLFN)|[![WyzeCam](https://github.com/iotinhome/home-assistant/blob/master/www/pic-17-wyzecam.PNG)](https://amzn.to/3bqPxb7)|[![Echo Dot](https://github.com/iotinhome/home-assistant/blob/master/www/pic-18-echo-dot.PNG)](https://amzn.to/3jL9wEC)|
 | Raspberry PI kit      |  USB SATA Connector      |  SSD Drive      |
 |[![Raspberry PI kit](https://github.com/iotinhome/home-assistant/blob/master/www/pic-19-pi4.PNG)](https://amzn.to/3lL0qJT)|[![USB SATA connector](https://github.com/iotinhome/home-assistant/blob/master/www/pic-20-sata.PNG)](https://amzn.to/2QXg0DG)|[![SSD Drive](https://github.com/iotinhome/home-assistant/blob/master/www/pic-21-SSD.PNG)](https://amzn.to/2DynhXO)||
+|[![Wyze Bulbs](https://github.com/iotinhome/home-assistant/blob/master/www/pic-22-wyze-bulb.PNG)](https://amzn.to/34hZpkA)|
 
 
 System Stats
