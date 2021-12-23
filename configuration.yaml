@@ -6,8 +6,9 @@ homeassistant:
 frontend:
   themes: !include_dir_merge_named themes
 
-speedtestdotnet:
-  scan_interval: '12:00:00'
+# no longer supported
+#speedtestdotnet:
+#  scan_interval: '12:00:00'
 
 wyzeapi:
   username: !secret wyze_email
@@ -20,12 +21,12 @@ stream:
 tts:
   - platform: google_translate
 
-zwave:
-  usb_path: /dev/ttyACM0
-  network_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  device_config: !include zwave_device_config.yaml
+#zwave:
+##  usb_path: /dev/ttyACM0
+#  usb_path: /dev/serial/by-id/usb-0658_0200-if00
+#  network_key: "0xd0, 0xed, 0xda, 0xc1, 0xbe, 0xe1, 0x82, 0xf1, 0x52, 0x12, 0x84, 0xb2, 0x16, 0x6a, 0x17, 0x6e"
+#  device_config: !include zwave_device_config.yaml
 
-# these devices are on a separate VLAN, as they are untrusted
 tplink:
   discovery: false
   switch:
@@ -33,6 +34,15 @@ tplink:
     - host: 192.168.7.131
     - host: 192.168.7.132
     - host: 192.168.7.133
+    - host: 192.168.7.134
+
+    
+#    - host: 192.168.1.160
+#    - host: 192.168.1.161
+#    - host: 192.168.1.162
+#    - host: 192.168.1.163
+#    - host: 192.168.1.164
+
 
 group: !include groups.yaml
 automation: !include automations.yaml
@@ -49,11 +59,16 @@ device_tracker:
   - platform: ping
     hosts:
       hostpixel: 192.168.1.112
+      hostpixel6: 192.168.1.111
+      count: 3
+      scan_interval: 180
+
+      
 # NMAP device tracker    
-#  - platform: nmap_tracker
+###  - platform: nmap_tracker
 #    home_interval: 60
-#    hosts :
-#    - 192.168.1.112
+###    hosts :
+###      - 192.168.1.112
 #    - 192.168.1.114
 #    - 192.168.1.119
 #    exclude:
@@ -67,19 +82,32 @@ device_tracker:
 panel_iframe:
   router:
     title: Router-SDCard
-    url: http://192.168.1.1
+    url: https://192.168.1.1
     icon: mdi:router-wireless
 panel_custom:
-  - name: floorplan
-    sidebar_title: Floorplan
-    sidebar_icon: mdi:floor-plan
-    url_path: floorplan
-    config: !include floorplan.yaml
+#  - name: floorplan
+#    sidebar_title: Floorplan
+#    sidebar_icon: mdi:floor-plan
+#    url_path: floorplan
+#    config: !include floorplan.yaml
 
-  - name: zwavegraph2
-    sidebar_title: ZWave Graph
-    sidebar_icon: mdi:access-point-network
-    url_path: zwave
+#  - name: zwavegraph2
+#    sidebar_title: ZWave Graph
+#    sidebar_icon: mdi:access-point-network
+#    url_path: zwave
+
+  - name: zwave-graph-panel
+    url_path: zwave-graph
+    sidebar_title: Z-Wave Graph
+    sidebar_icon: mdi:z-wave
+    module_url: /local/zwavegraph3.js
+    config:
+      # ranker - pick one: network-simplex, tight-tree, longest-path
+      ranker: network-simplex
+      # edge_visibility - pick one: relevant, all
+      edge_visibility: relevant
+      # grouping - pick one: z-wave, ungrouped
+      grouping: z-wave
 
   #Graphana:
 #    title: Graphana
@@ -112,7 +140,7 @@ binary_sensor:
     probability_threshold: 0.9
     observations:
 #      - entity_id: 'device_tracker.pixel_3_xl' # BT
-      - entity_id: 'device_tracker.hostpixel' #ping
+      - entity_id: 'device_tracker.hostpixel6' #ping
         prob_given_true: 0.9
         prob_given_false: 0.1
         platform: 'state'
@@ -133,17 +161,28 @@ binary_sensor:
         prob_given_false: 0.1
         platform: 'state'
         to_state: 'home'        
+  - platform: template
+    sensors:        
+      alarm_heat_on:
+         value_template: >-
+           {% set alarm_time = as_timestamp(states('sensor.next_alarm')) %}
+           {% set time_now = as_timestamp(now()) %}
+           {% if alarm_time != None %}
+             {{ time_now >= alarm_time - 1800 }}
+           {% else %}
+             {{ unavailable }}
+           {% endif %}
 
 
 # Influx DB  
 influxdb:
-  host: hassio
+  host: 192.168.1.100
   port: 8086
   database: hassdb
   username: hassdb
   password: !secret influx
   max_retries: 3
-  default_measurement: state
+#  default_measurement: state
 
 # Example configuration.yaml entry
 #glances:
@@ -165,6 +204,28 @@ sensor:
 #     unit_of_measurement: "°C"
 #     value_template: '{{ "%.2f"|format(value|multiply(0.001)) }}' 
 
+
+
+  - platform: template
+    sensors:
+      p4_amps:
+        value_template: '{{ states.switch.p4.attributes.current_a}}'
+        unit_of_measurement: 'A'
+        friendly_name: 'Kitchen Main Power amp'
+      p4_volts:
+        value_template: '{{ states.switch.p4.attributes.voltage}}'
+        unit_of_measurement: 'V'
+        friendly_name: 'Kitchen Main Power voltage'
+      p4_watts:
+        value_template: '{{ states.switch.p4.attributes.current_power_w}}'
+        unit_of_measurement: 'W'
+        friendly_name: 'Kitchen Main Power current consumption'
+      p4_total_kw:
+        value_template: '{{ states.switch.p4.attributes.total_energy_kwh}}'
+        unit_of_measurement: 'kWh'
+        friendly_name: 'Kitchen Main Power total consumption'
+
+  - platform: season
 
   - platform: template
     sensors:
@@ -218,13 +279,47 @@ sensor:
           {%- set days = (time // 86400) %}
           {%- set days = '{}d '.format(days) if days > 0 else '' %}
           {{ 'Less than 1 min' if time < 60 else days + hours + minutes }}
+          
+      next_alarm:
+         value_template: "{{ [states('sensor.pixel_6_pro_next_alarm')] | min }}"
+         attribute_templates:
+           next_alarm_localtime: >-
+             {{ as_timestamp(states('sensor.next_alarm')) | timestamp_custom('%A %H:%M') }}
 
-  - platform: ohmconnect
-    id: !secret ohm
+
+#  - platform: ohmconnect
+#    id: !secret ohm
 
 #  - platform: xfinity
 #    username: !secret xfinity_email
 #    password: !secret xfinity_password
+
+
+  - platform: command_line
+    name: Supervisor updates
+    command: 'curl http://supervisor/supervisor/info -H "Authorization: Bearer $(printenv SUPERVISOR_TOKEN)" | jq ''{"newest_version":.data.version_latest,"current_version":.data.version,"addons":[.data.addons[] | select(.version != .installed)]}'''
+    value_template: "{{ value_json.addons | length }}"
+    json_attributes:
+      - newest_version
+      - current_version
+      - addons
+
+  - platform: command_line
+    name: DNS updates
+    command: 'curl http://supervisor/dns/info -H "Authorization: Bearer $(printenv SUPERVISOR_TOKEN)" | jq ''{"version":.data.version,"version_latest":.data.version_latest }'''
+    value_template: "{{ value_json.version }}"
+    json_attributes:
+      - version
+      - version_latest
+
+  - platform: command_line
+    name: Audio updates
+    command: 'curl http://supervisor/audio/info -H "Authorization: Bearer $(printenv SUPERVISOR_TOKEN)" | jq ''{"version":.data.version,"version_latest":.data.version_latest }'''
+    value_template: "{{ value_json.version }}"
+    json_attributes:
+      - version
+      - version_latest
+
 
   - platform: command_line
     name: Uptime OS
@@ -256,6 +351,17 @@ sensor:
     name: HA Update Version
     value_template: "{{ value_json.homeassistant.default }}"
     scan_interval: 3600
+
+  - platform: version
+    name: Installed Version
+    source: local  
+  
+  - platform: version
+    name: Latest Version
+    beta: false
+    image: raspberrypi4
+    source: hassio
+
     
 #https://home-assistant.io/components/sensor.command_line/
   -  platform: command_line
@@ -265,17 +371,17 @@ sensor:
     sensors:
       thermostat_temperature:
         friendly_name: "thermostat_temperature"
-        entity_id: climate.thermostat_12
+#        entity_id: climate.thermostat_12
         unit_of_measurement: "°F"
-        value_template: "{{ state_attr('climate.thermostat_12', 'current_temperature') }}"    
+        value_template: "{{ state_attr('climate.thermostat', 'current_temperature') }}"    
       outside_temperature:
         friendly_name: "outside_temperature"
-        entity_id: weather.home
+#        entity_id: weather.home
         unit_of_measurement: "°F"
         value_template: "{{ state_attr('weather.home', 'temperature') }}"    
   #----- Count Sensors
       count_sensors:
-        entity_id: sensor.date
+#        entity_id: sensor.date
         value_template: >
           {%- set domains = ['sensor'] -%}
           {%- for domain in domains -%}
@@ -287,28 +393,28 @@ sensor:
           {%- endfor -%}
       #----- Count All Entities
       total_entities:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Entities'
         icon_template: mdi:code-tags
         value_template: "{{ states | count }}"
 
       #----- Count Automations
       total_automations:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Automations'
         icon_template: mdi:robot
         value_template: "{{ states.automation | list | length }}"
 
       #----- Count Binary Sensors
       total_binary_sensors:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Binary Sensors'
         icon_template: mdi:checkbox-multiple-marked-circle
         value_template: "{{ states.binary_sensor | list | length }}"
 
       #----- Count Cameras
       total_cameras:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Cameras'
         icon_template: mdi:cctv
         value_template: "{{ states.camera | list | length }}"
@@ -316,56 +422,56 @@ sensor:
 
       #----- Count Device Trackers
       total_devicetrackers:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Devices'
         icon_template: mdi:cellphone-link
         value_template: "{{ states.device_tracker | list | length }}"
 
       #----- Count Lights
       total_lights:
-        entity_id: sensor.date
+#        entity_id: sensor.date
         friendly_name: 'Lights'
         icon_template: mdi:lightbulb-on
         value_template: "{{ states.light | list | length }}"
 
       #----- Count Media Players
       total_media_players:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Media Players'
         icon_template: mdi:cast-connected
         value_template: "{{ states.media_player | list | length }}"
 
       #----- Count Persons
       total_persons:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Persons'
         icon_template: mdi:account-multiple
         value_template: "{{ states.person | list | length }}"
 
       #----- Count Scenes
       total_scenes:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Scenes'
         icon_template: mdi:palette
         value_template: "{{ states.scene | list | length }}"
 
       #----- Count Scripts
       total_scripts:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Scripts'
         icon_template: mdi:script-text-outline
         value_template: "{{ states.script | list | length }}"
 
       #----- Count Sensors
       total_sensors:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Sensors'
         icon_template: mdi:pulse
         value_template: "{{ states.sensor | list | length }}"
 
       #----- Count Switches
       total_switches:
-        entity_id: []
+#        entity_id: []
         friendly_name: 'Switches'
         icon_template: mdi:power-socket-us
         value_template: "{{ states.switch | list | length }}"
@@ -404,43 +510,62 @@ camera: !include cameras.yaml
 switch:
   - platform: wake_on_lan
     name: TV
-    mac: "XXXXXXXXXX"
+    mac: "CC:6E:A4:78:A9:2F"
 
+#  - platform: samsungtv
+#    host: 192.168.1.33
+#    port: 8001
+#    name: TV
+#    timeout: 5
+#    mac: CC:6E:A4:78:A9:2F
 
 wake_on_lan:
 
+#samsungtv:
+#  - host: 192.168.1.33
+#    turn_on_action:
+#      - service: wake_on_lan.send_magic_packet
+#        data:
+#          mac: "CC:6E:A4:78:A9:2F"
 
   - platform: samsungtv
     host: 192.168.1.124
     turn_on_action:
       - service: wake_on_lan.send_magic_packet
         data:
-          mac: "XXXXXXXX"
+          mac: "CC:6E:A4:78:A9:2F"
 
-image_processing:
-  - platform: deepstack_object
-    ip_address: 192.168.1.101
-    port: 5000
-    api_key: mysecretkey
-    save_file_folder: /config/www/deepstack
-    targets:
-      - person
-      - car
-    source:
-      - entity_id: camera.foscam_garage
-        name: cam1
-      - entity_id: camera.kitchen
-        name: cam2
-      - entity_id: camera.wyzecampan
-        name: cam3
-      - entity_id: camera.wyzecampan1
-        name: cam4
-      - entity_id: camera.wyzecamgarage
-        name: cam5
-#      - entity_id: camera.amcrest_camera
-#        name: cam6
-      - entity_id: camera.wyzewindow
-        name: cam7
+# Example configuration.yaml entry
+media_player:
+  # Use the Python ADB implementation
+  - platform: androidtv
+    name: Android TV
+    host: 192.168.1.36
+    
+#image_processing:
+#  - platform: deepstack_object
+#    ip_address: 192.168.1.101
+#    port: 5000
+#    api_key: mysecretkey
+#    save_file_folder: /config/www/deepstack
+#    targets:
+#      - person
+#      - car
+#    source:
+#      - entity_id: camera.foscam_garage
+#        name: cam1
+#      - entity_id: camera.kitchen
+#        name: cam2
+#      - entity_id: camera.wyzecampan
+#        name: cam3
+#      - entity_id: camera.wyzecampan1
+#        name: cam4
+#      - entity_id: camera.wyzecamgarage
+#        name: cam5
+##      - entity_id: camera.amcrest_camera
+##        name: cam6
+#      - entity_id: camera.wyzewindow
+#        name: cam7
         
 # Example configuration.yaml entry
 #image_processing:
