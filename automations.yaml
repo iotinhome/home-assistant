@@ -3,17 +3,38 @@
   description: I'm away
   trigger:
   - entity_id: binary_sensor.joes_presence
-    for: 00:05:00
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
     from: 'on'
     platform: state
     to: 'off'
   condition: []
   action:
   - data:
-      entity_id: climate.thermostat
-      temperature: 59
-    entity_id: climate.thermostat
+      temperature: 60
     service: climate.set_temperature
+    target:
+      entity_id: climate.thermostat
+  - service: notify.smtp
+    data:
+      message: Joe left home - lower temp & lock door
+      title: Joe left home - lower temp & lock door
+  - device_id: f661c40ddba944e8ab78c756b22da35f
+    domain: lock
+    entity_id: lock.front_yale_locked
+    type: lock
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - service: climate.set_temperature
+    data:
+      temperature: 60
+    target:
+      entity_id: climate.thermostat
   mode: single
 - id: '1569710121286'
   alias: 1.2 Me Back - bypass sensors -5am-10pm
@@ -24,14 +45,29 @@
     platform: state
     to: 'on'
   condition:
-  - after: 00:05:00
-    before: 00:22:00
+  - after: 05:00:00
+    before: '22:00:00'
     condition: time
   action:
   - data:
       message: Joe is back home - sensors disarmed
       title: Joe is back home - sensors disarmed
     service: notify.smtp
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.thermostat
+    data:
+      temperature: 66
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.thermostat
+    data:
+      temperature: 66
   mode: single
 - id: '1569710186899'
   alias: Guest Away
@@ -147,18 +183,6 @@
       message: Garage Door 1 Opened
     service: notify.smtp
   mode: single
-- id: '1589602963519'
-  alias: At Sunset
-  description: ''
-  trigger:
-  - event: sunset
-    offset: 00:30:00
-    platform: sun
-  condition: []
-  action:
-  - data:
-      entity_id: scene.closeblinds
-    service: scene.turn_on
 - id: '1590371378212'
   alias: The sun is about to set
   description: ''
@@ -214,7 +238,7 @@
     to: 'on'
   condition:
   - after: 04:00:00
-    before: '11:00:00'
+    before: '10:00:00'
     condition: time
   action:
   - data: {}
@@ -244,25 +268,9 @@
       message: Home UPS changed
     service: notify.notify
   mode: single
-- id: '1596955740866'
-  alias: Bedroom plug
-  description: on 10pm - off 8am
-  trigger:
-  - at: '23:00:00'
-    platform: time
-  condition: []
-  action:
-  - data: {}
-    entity_id: switch.bedroom_plug
-    service: switch.turn_on
-  - delay: 08:00:00
-  - data: {}
-    entity_id: switch.bedroom_plug
-    service: switch.turn_off
-  mode: single
 - id: '1597025818169'
   alias: 2.2 Ohm Complete
-  description: Ohm Complete1
+  description: Ohm Complete
   trigger:
   - entity_id: sensor.ohmconnect_status
     from: Active
@@ -273,10 +281,18 @@
   - data:
       message: OhmPowerdown Complete - devices restarting in 5 minutes
     service: notify.notify
-  - delay: 00:05:00
+  - delay:
+      hours: 0
+      minutes: 2
+      seconds: 0
+      milliseconds: 0
   - data: {}
-    entity_id: switch.office
     service: switch.turn_on
+    target:
+      entity_id:
+      - switch.office
+      - switch.smart_energy_switch_switch
+      - switch.dining_room_plug
   mode: single
 - id: '1597112931912'
   alias: Ups battery less than 15%
@@ -295,33 +311,34 @@
     service: persistent_notification.create
   mode: single
 - id: '1597553523200'
-  alias: 9.1 Bed time
-  description: ''
+  alias: 9.1 Bed time - pixel plugged in
+  description: pixel charging - lights off - temp 60
   trigger:
-  - entity_id: binary_sensor.wakeup
-    from: 'on'
-    platform: state
-    to: 'off'
+  - platform: state
+    to: 'on'
+    entity_id: binary_sensor.pixel_6_pro_is_charging
   condition:
-  - after: '23:00:00'
-    before: 06:00:00
+  - after: '21:30:00'
+    before: 04:00:00
     condition: time
   action:
-  - data: {}
-    entity_id: switch.bedroom_plug
-    service: switch.turn_on
   - data: {}
     entity_id: light.jasco_products_45606_2_way_dimmer_switch_level
     service: light.turn_off
   - data: {}
     entity_id: light.lounge_led
     service: light.turn_off
+  - data:
+      temperature: 60
+    service: climate.set_temperature
+    target:
+      entity_id: climate.thermostat
   mode: single
 - id: '1598681075383'
-  alias: Pixel morning unplugged
+  alias: 0.0 Pixel morning unplugged
   description: ''
   trigger:
-  - entity_id: sensor.pixel_3_xl_battery_state
+  - entity_id: sensor.pixel_6_pro_battery_state
     from: full
     platform: state
     to: discharging
@@ -333,11 +350,292 @@
   - data: {}
     entity_id: switch.bedroom_plug
     service: switch.turn_off
+  - service: climate.set_temperature
+    data:
+      temperature: 68
+    target:
+      entity_id: climate.thermostat
+  - service: light.turn_on
+    target:
+      entity_id: light.jasco_products_45606_2_way_dimmer_switch_level
+    data:
+      brightness_pct: 40
+  - service: switch.turn_on
+    target:
+      entity_id: switch.kitchen_led
   - data: {}
-    entity_id: switch.coffee_machine
     service: switch.turn_on
+    target:
+      entity_id: switch.p3
   - delay: 00:20:00
   - data: {}
-    entity_id: switch.coffee_machine
     service: switch.turn_off
-  mode: single    
+    target:
+      entity_id: switch.p3
+  - service: switch.turn_off
+    target:
+      entity_id: switch.kitchen_led
+  mode: single
+- id: '1600141245710'
+  alias: 9.1 BedRoom plug on at 21:00
+  description: BedRoom plug on at 21:00
+  trigger:
+  - at: '21:00:00'
+    platform: time
+  condition: []
+  action:
+  - data: {}
+    entity_id: switch.bedroom_plug
+    service: switch.turn_on
+  mode: single
+- id: '1602692852466'
+  alias: Front door
+  description: ''
+  trigger:
+  - platform: device
+    device_id: f661c40ddba944e8ab78c756b22da35f
+    domain: lock
+    entity_id: lock.front_yale_locked
+    type: unlocked
+  condition: []
+  action:
+  - service: notify.smtp
+    data:
+      message: 'Front Door: changed'
+      title: Front Door Alert from HomeAssistant
+  mode: single
+- id: '1615447322743'
+  alias: 9.2 Night Low Temp
+  description: ''
+  trigger:
+  - platform: time
+    at: 00:45
+  condition: []
+  action:
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.thermostat
+    data:
+      temperature: 60
+  mode: single
+- id: '1615524679678'
+  alias: Work-winter
+  description: Work-winter
+  trigger:
+  - platform: time
+    at: 05:30:00
+  condition:
+  - condition: state
+    entity_id: sensor.season
+    state: winter
+  action:
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.thermostat
+    data:
+      temperature: 64
+  mode: single
+- id: '1615619567461'
+  alias: 0.2 Open blinds at sunrise
+  description: Open blinds at sunrise plus 20 min
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 00:05:00
+  condition: []
+  action:
+  - type: turn_on
+    device_id: b8976928ae69def4df3067633df67f49
+    entity_id: switch.z_wave_to_rts_interface_virtual_node_2
+    domain: switch
+  - type: turn_on
+    device_id: 7ad8ef1ecacdf36ea73a4bfa6d71d2ca
+    entity_id: switch.z_wave_to_rts_interface_virtual_node
+    domain: switch
+  mode: single
+- id: '1615619804132'
+  alias: 9.0 Close blinds - sunset - lights on
+  description: Close blinds at sunset - lights on
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: -00:15:00
+  condition: []
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id: switch.p2
+  - wait_template: 00:05:00
+    timeout: '120'
+    continue_on_timeout: true
+  - type: turn_off
+    device_id: b8976928ae69def4df3067633df67f49
+    entity_id: switch.z_wave_to_rts_interface_virtual_node_2
+    domain: switch
+  - type: turn_off
+    device_id: 7ad8ef1ecacdf36ea73a4bfa6d71d2ca
+    entity_id: switch.z_wave_to_rts_interface_virtual_node
+    domain: switch
+  - wait_template: 00:00:01
+    continue_on_timeout: true
+    timeout: '30'
+  - service: script.blinds_close_doublecheck
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.lounge_led
+  mode: single
+- id: '1615624897890'
+  alias: 0.0 heat on 30 min before alarm
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.alarm_heat_on
+    to: 'on'
+  condition:
+  - condition: time
+    after: 04:00
+    before: 09:00:00
+  action:
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.thermostat
+    data:
+      temperature: 68
+  mode: single
+- id: '1619756126026'
+  alias: ZZ- coffee machine off after 1 hour
+  description: coffee machine off after 1 hour
+  trigger:
+  - platform: state
+    entity_id: switch.coffee_machine
+    to: 'on'
+    for: 01:00:00
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.coffee_machine
+  mode: single
+- id: '1619765685955'
+  alias: ZZ-Power off 4pm
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '16'
+    minutes: '00'
+    seconds: '00'
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.evolve_guest_controls_lfm_20_fixture_module_switch
+      - switch.dining_room_plug
+      - switch.p0
+      - switch.p1
+      - switch.p3
+      - switch.p4
+      - switch.p2
+  mode: single
+- id: '1619765797680'
+  alias: ZZ- Power on 9pm
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '21'
+    minutes: '01'
+    seconds: '00'
+  condition: []
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id:
+      - switch.p4
+      - switch.evolve_guest_controls_lfm_20_fixture_module_switch
+      - switch.dining_room_plug
+      - switch.p0
+      - switch.p1
+      - switch.p2
+  - wait_template: 00:02:00
+    continue_on_timeout: true
+    timeout: '60'
+  - service: switch.turn_off
+    target:
+      entity_id:
+      - switch.coffee_machine
+      - switch.p3
+  mode: single
+- id: '1620707731453'
+  alias: ZZ-washing machine off after 1 hour
+  description: ZZ-washing machine off after 1 hour
+  trigger:
+  - platform: state
+    entity_id: switch.washing_machine
+    to: 'on'
+    for: 01:00:00
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id: switch.washing_machine
+  mode: single
+- id: '1634786870043'
+  alias: Start Zwave Network
+  description: ''
+  trigger:
+  - platform: time
+    at: 01:00:00
+  condition: []
+  action:
+  - service: zwave.start_network
+  mode: single
+- id: '1636473107496'
+  alias: '0.3 Blinds dinning room gradual '
+  description: 0.3 Blinds dinning room gradual, dinning room light off
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 01:00:00
+  condition: []
+  action:
+  - device_id: a418b5a8a71bb84c560a1c41a69a40d2
+    domain: cover
+    entity_id: cover.blinds_dinning_rooom_level
+    type: set_position
+    position: 100
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    target:
+      entity_id: light.jasco_products_45606_2_way_dimmer_switch_level
+  - device_id: a418b5a8a71bb84c560a1c41a69a40d2
+    domain: cover
+    entity_id: cover.blinds_dinning_rooom_level
+    type: set_position
+    position: 70
+  - delay:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - device_id: a418b5a8a71bb84c560a1c41a69a40d2
+    domain: cover
+    entity_id: cover.blinds_dinning_rooom_level
+    type: set_position
+    position: 65
+  - delay:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - device_id: a418b5a8a71bb84c560a1c41a69a40d2
+    domain: cover
+    entity_id: cover.blinds_dinning_rooom_level
+    type: set_position
+    position: 55
+  mode: single
