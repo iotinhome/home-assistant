@@ -1,35 +1,39 @@
 #  - platform: amcrest
   - platform: mjpeg
     name: Kitchen
-    mjpeg_url: http://192.168.1.152/videostream.cgi?    user=admin&pwd=XXXX
+    mjpeg_url: http://192.168.1.152/videostream.cgi?user=admin&pwd=head45!
 #    port: 80
     username: admin
     password: !secret campass
     authentication: basic
-  - platform: foscam
-    name: Foscam Garage
-    ip: 192.168.1.154
-    port: 443
-    username: admin
-    password: !secret campass
+#  - platform: foscam
+#    name: Foscam r2
+#    ip: 192.168.1.154
+#    port: 443
+#    username: admin
+#    password: !secret campass
+#
 #  - platform: local_file
 #    file_path: /config/www/deepstack
 #    name: deepstack_latest
 #  - platform: generic
 #    name: WyzeCamPan
 #    still_image_url: "null"
+#    stream_source: rtsp://root:Head4545@192.168.1.130/live
 #    verify_ssl: false
   - platform: ffmpeg
     name: WyzeCamPan
 #    still_image_url: "null"
-#    stream_source: rtsp://root:XXXXX@192.168.1.158/live
-    input: -rtsp_transport tcp -i rtsp://root:XXXXX@192.168.1.158/live
+#    stream_source: rtsp://root:Head4545@192.168.1.158/live
+    input: -rtsp_transport tcp -i rtsp://root:Head4545@192.168.1.158/live
 #    verify_ssl: false
   - platform: ffmpeg
     name: WyzeCamGarage
-#    still_image_url: "null"
-    input: -rtsp_transport tcp -i rtsp://root:XXXXX@192.168.1.155/live
+#    still_image_url: "http://root:Head4545@192.168.1.155/image.jpg"
+    input: -rtsp_transport tcp -i rtsp://root:Head4545@192.168.1.155/live
+#    stream_source: rtsp://root:Head4545@192.168.1.123/live
   - platform: ffmpeg
     name: WyzeKitchenCorner
 #    still_image_url: "null"
-    input: -rtsp_transport tcp -i rtsp://root:XXXXX@192.168.1.157/live
+#    stream_source: rtsp://root:Head4545@192.168.1.157/live
+    input: -rtsp_transport tcp -i rtsp://root:Head4545@192.168.1.157/live
